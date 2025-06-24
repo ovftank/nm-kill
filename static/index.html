@@ -271,15 +271,13 @@
                 }
 
                 sessionKeys.forEach((ip) => {
-                    const session = state.sessions[ip];
                     const sessionEl = document.createElement('div');
                     sessionEl.className = 'flex justify-between items-center p-4 hud-element rounded-md scan-effect';
 
                     /* HTML */
                     sessionEl.innerHTML = `
                     <div class="terminal-text relative">
-                        <span class="font-semibold neon-text">TARGET:</span> <span class="neon-hover">${ip}</span> |
-                        <span class="font-semibold neon-text">GATEWAY:</span> <span class="neon-hover">${session.gateway}</span>
+                        <span class="font-semibold neon-text">TARGET:</span> <span class="neon-hover">${ip}</span>
                         <div class="explosion-sparks" style="top: 2px; right: 100px;"></div>
                     </div>
                     <button
