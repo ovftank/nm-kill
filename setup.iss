@@ -1,6 +1,6 @@
 [Setup]
 AppName=NM KILL
-AppVersion=1.0.0
+AppVersion={#GetFileVersion("nm-kill.exe")}
 AppPublisher=ovftank
 AppPublisherURL=https://github.com/ovftank/nm-kill
 AppSupportURL=https://github.com/ovftank/nm-kill/issues

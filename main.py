@@ -19,6 +19,8 @@ from helper.arp_helper import arp_spoof
 from helper.network import get_current_ip, get_default_gateway
 from helper.npcap_helper import check_npcap_exists, install_npcap
 from helper.scan_helper import scan_devices
+from helper.updater import update_checker
+from version import __version__
 
 app = FastAPI(title="NM KILL")
 
@@ -47,6 +49,10 @@ def create_icon():
 
 def open_browser():
     webbrowser.open('http://localhost:80')
+
+
+def check_for_updates(_, __):
+    update_checker.check_and_prompt_update()
 
 
 def quit_app(icon, _):
@@ -169,6 +175,24 @@ async def stop_spoofing(session_id: str):
     return {}
 
 
+@app.get("/api/version")
+async def get_version():
+    return {"version": __version__}
+
+
+@app.get("/api/update/check")
+async def check_update():
+    try:
+        is_available, latest_version = update_checker.is_update_available()
+        return {
+            "current_version": __version__,
+            "latest_version": latest_version,
+            "update_available": is_available
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 static_dir = get_resource_path('static')
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 app.mount("/", StaticFiles(directory=static_dir, html=True), name="spa")
@@ -185,6 +209,7 @@ if __name__ == "__main__":
         create_icon(),
         menu=pystray.Menu(
             pystray.MenuItem("Open Browser", open_browser),
+            pystray.MenuItem("Check for Updates", check_for_updates),
             pystray.MenuItem("Quit", quit_app)
         )
     )

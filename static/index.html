@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>NM KILL</title>
-        <link rel="icon" type="image/png" href="https://app.ovfteam.com/icon.png" />
+        <link rel="icon" type="image/png" href="/favicon.ico" />
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <style type="text/tailwindcss">
             .animation-delay-150 {
@@ -69,6 +69,10 @@
                             <span id="current-ip" class="opacity-80 px-2 py-1 font-mono" title="Click to copy">DETECTING...</span>
                             <button id="copy-btn" class="ml-2 px-2 py-1 bg-black text-white hover:bg-white hover:text-black border border-black font-mono text-xs tracking-wider uppercase transition-all duration-200 cursor-pointer" title="Copy URL">COPY</button>
                         </h3>
+                        <div class="flex justify-between items-center mt-2">
+                            <h3 class="text-sm font-semibold">VERSION: <span id="version" class="opacity-80">LOADING...</span></h3>
+                            <button id="check-update-btn" class="px-2 py-1 bg-black text-white hover:bg-white hover:text-black border border-black font-mono text-xs tracking-wider uppercase transition-all duration-200 cursor-pointer" title="Check for Updates">UPDATE</button>
+                        </div>
                     </div>
 
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
@@ -133,6 +137,8 @@
             const elements = {
                 gateway: document.getElementById('gateway'),
                 currentIp: document.getElementById('current-ip'),
+                version: document.getElementById('version'),
+                checkUpdateBtn: document.getElementById('check-update-btn'),
                 devicesContainer: document.getElementById('devices-container'),
                 sessionsContainer: document.getElementById('sessions-container'),
                 sessionsList: document.getElementById('sessions-list'),
@@ -458,6 +464,37 @@
                 }
             };
 
+            const loadVersion = async () => {
+                try {
+                    const response = await fetch('/api/version');
+                    const data = await response.json();
+                    elements.version.textContent = data.version;
+                } catch (error) {
+                    elements.version.textContent = 'UNKNOWN';
+                }
+            };
+
+            const checkForUpdates = async () => {
+                try {
+                    elements.checkUpdateBtn.textContent = 'CHECKING...';
+                    elements.checkUpdateBtn.disabled = true;
+
+                    const response = await fetch('/api/update/check');
+                    const data = await response.json();
+
+                    if (data.update_available) {
+                        alert(`Update available!\nCurrent: ${data.current_version}\nLatest: ${data.latest_version}\n\nPlease check system tray for update options.`);
+                    } else {
+                        alert('You are using the latest version!');
+                    }
+                } catch (error) {
+                    alert('Error checking for updates: ' + error.message);
+                } finally {
+                    elements.checkUpdateBtn.textContent = 'UPDATE';
+                    elements.checkUpdateBtn.disabled = false;
+                }
+            };
+
             const refreshData = async () => {
                 try {
                     showLoading(true);
@@ -551,6 +588,8 @@
 
             document.addEventListener('DOMContentLoaded', () => {
                 elements.refreshBtn.addEventListener('click', refreshData);
+                elements.checkUpdateBtn.addEventListener('click', checkForUpdates);
+                loadVersion();
                 elements.refreshBtnMobile.addEventListener('click', refreshData);
                 elements.copyBtn.addEventListener('click', copyMobileLink);
 

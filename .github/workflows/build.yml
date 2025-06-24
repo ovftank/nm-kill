@@ -35,9 +35,13 @@ jobs:
         id: version
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+            VERSION="${{ github.event.inputs.version }}"
+            echo "__version__ = \"$VERSION\"" > version.py
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
           else
-            echo "version=1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+            VERSION="1.0.${{ github.run_number }}"
+            echo "__version__ = \"$VERSION\"" > version.py
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
           fi
         shell: bash
 

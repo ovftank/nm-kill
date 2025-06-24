@@ -28,8 +28,8 @@ def get_default_iface():
         for iface in ifaces:
             if iface['ips'] and iface['ips'] != []:
                 return iface['name']
-    except Exception as e:
-        print(f"Lỗi khi lấy interface mặc định: {e}")
+    except Exception:
+        pass
     return None
 
 
