@@ -1,0 +1,86 @@
+name: Build Executable
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Số phiên bản'
+        required: true
+        default: '1.0.0'
+        type: string
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ['3.10']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Generate version number
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Build with script
+        run: |
+          .\build.bat
+
+      - name: Compile Inno Setup Script
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: setup.iss
+          options: /O+
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-v${{ steps.version.outputs.version }}
+          path: |
+            nm-kill.exe
+            installer/nm-kill-setup.exe
+
+      - name: Create Release Description
+        id: create_description
+        shell: pwsh
+        run: |
+          "## v${{ steps.version.outputs.version }}" | Out-File -FilePath release_description.txt
+          "" | Add-Content release_description.txt
+          "Ngày: $(Get-Date -Format 'dd/MM/yyyy')" | Add-Content release_description.txt
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            nm-kill.exe
+            installer/nm-kill-setup.exe
+          body_path: release_description.txt
+          name: Release v${{ steps.version.outputs.version }}
+          tag_name: v${{ steps.version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

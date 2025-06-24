@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>NM KILL</title>
+        <link rel="icon" type="image/png" href="https://app.ovfteam.com/icon.png" />
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <style type="text/tailwindcss">
+            .animation-delay-150 {
+                animation-delay: 150ms;
+            }
+            .animation-delay-300 {
+                animation-delay: 300ms;
+            }
+
+            @keyframes glitch {
+                0%,
+                100% {
+                    transform: translateX(0);
+                }
+                20% {
+                    transform: translateX(-2px);
+                }
+                40% {
+                    transform: translateX(2px);
+                }
+                60% {
+                    transform: translateX(-1px);
+                }
+                80% {
+                    transform: translateX(1px);
+                }
+            }
+
+            .glitch {
+                animation: glitch 0.3s ease-in-out;
+            }
+
+            .autocomplete-scroll::-webkit-scrollbar {
+                width: 4px;
+            }
+            .autocomplete-scroll::-webkit-scrollbar-track {
+                background: white;
+            }
+            .autocomplete-scroll::-webkit-scrollbar-thumb {
+                background: black;
+            }
+
+            .neon-hover {
+                transition: all 0.3s ease;
+            }
+            .neon-hover:hover {
+                color: white;
+                text-shadow: 0 0 2px black, 0 0 4px black, 0 0 6px black, 0 0 8px black, 0 0 10px black;
+            }
+        </style>
+    </head>
+    <body class="bg-white text-black font-mono">
+        <div class="min-h-screen p-4" id="app">
+            <h1 class="text-3xl font-bold text-center mb-6 tracking-wider uppercase">NM KILL</h1>
+
+            <div class="flex flex-col md:flex-row gap-6 h-full">
+                <div id="left-panel" class="w-full">
+                    <div class="border border-black p-4 rounded-lg mb-6">
+                        <h3 class="text-xl font-semibold">GATEWAY: <span id="gateway" class="opacity-80">DETECTING...</span></h3>
+                        <h3 class="text-xl font-semibold hidden md:block">
+                            URL:
+                            <span id="current-ip" class="opacity-80 px-2 py-1 font-mono" title="Click to copy">DETECTING...</span>
+                            <button id="copy-btn" class="ml-2 px-2 py-1 bg-black text-white hover:bg-white hover:text-black border border-black font-mono text-xs tracking-wider uppercase transition-all duration-200 cursor-pointer" title="Copy URL">COPY</button>
+                        </h3>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                        <h2 class="text-2xl font-bold tracking-wide uppercase">IP LIST</h2>
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+                            <div class="flex items-center space-x-2 w-full sm:w-auto md:hidden">
+                                <div id="search-container" class="relative flex-1">
+                                    <input id="search-input" type="text" placeholder="SEARCH DEVICE..." class="w-full px-4 py-2 border border-black bg-white text-black font-mono tracking-wider uppercase placeholder-gray-400 focus:outline-none focus:border-2 focus:shadow-sm transition-all duration-200" autocomplete="off" />
+                                    <div id="autocomplete-list" class="absolute top-full left-0 right-0 bg-white border border-black border-t-0 max-h-40 overflow-y-auto hidden z-10 autocomplete-scroll shadow-sm"></div>
+                                </div>
+                                <button id="refresh-btn-mobile" class="px-4 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer whitespace-nowrap">SCAN</button>
+                            </div>
+                            <div id="search-container-desktop" class="hidden md:block relative">
+                                <input id="search-input-desktop" type="text" placeholder="SEARCH IP..." class="px-4 py-2 border border-black bg-white text-black font-mono tracking-wider uppercase placeholder-gray-400 focus:outline-none focus:border-2 focus:shadow-sm transition-all duration-200" autocomplete="off" />
+                                <div id="autocomplete-list-desktop" class="absolute top-full left-0 right-0 bg-white border border-black border-t-0 max-h-40 overflow-y-auto hidden z-10 autocomplete-scroll shadow-sm"></div>
+                            </div>
+                            <button id="refresh-btn" class="hidden md:block px-6 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer">REFRESH</button>
+                        </div>
+                    </div>
+
+                    <div id="loading" class="text-center py-12">
+                        <div class="relative inline-block">
+                            <div class="w-16 h-16 border-4 border-black border-opacity-20 rounded-full"></div>
+                            <div class="absolute top-0 left-0 w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+                            <div class="absolute top-2 left-2 w-12 h-12 border-2 border-black border-opacity-30 border-r-transparent rounded-full animate-spin animation-delay-150"></div>
+                            <div class="absolute top-4 left-4 w-8 h-8 border-2 border-black border-b-transparent rounded-full animate-spin animation-delay-300"></div>
+                        </div>
+                        <div class="mt-6 space-y-2">
+                            <div class="flex justify-center space-x-1">
+                                <div class="w-2 h-2 bg-black rounded-full animate-pulse"></div>
+                                <div class="w-2 h-2 bg-black rounded-full animate-pulse animation-delay-150"></div>
+                                <div class="w-2 h-2 bg-black rounded-full animate-pulse animation-delay-300"></div>
+                            </div>
+                            <p class="text-sm font-mono tracking-wider uppercase opacity-80">SCANNING NETWORK...</p>
+                        </div>
+                    </div>
+
+                    <div id="devices-container" class="hidden">
+                        <div id="devices-list" class="space-y-4"></div>
+                    </div>
+                </div>
+
+                <div id="right-panel" class="w-full md:w-1/2 hidden">
+                    <div id="sessions-container">
+                        <h2 class="text-xl font-semibold md:text-2xl md:font-bold tracking-wide uppercase mb-4">BLOCKED TARGETS</h2>
+                        <div id="sessions-list" class="space-y-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const state = {
+                devices: [],
+                sessions: {},
+                gateway: null,
+                current: null,
+                loading: false,
+                selectedIndex: -1
+            };
+
+            const elements = {
+                gateway: document.getElementById('gateway'),
+                currentIp: document.getElementById('current-ip'),
+                devicesContainer: document.getElementById('devices-container'),
+                sessionsContainer: document.getElementById('sessions-container'),
+                sessionsList: document.getElementById('sessions-list'),
+                loading: document.getElementById('loading'),
+                refreshBtn: document.getElementById('refresh-btn'),
+                refreshBtnMobile: document.getElementById('refresh-btn-mobile'),
+                copyBtn: document.getElementById('copy-btn'),
+                searchContainer: document.getElementById('search-container'),
+                searchInput: document.getElementById('search-input'),
+                autocompleteList: document.getElementById('autocomplete-list'),
+                searchContainerDesktop: document.getElementById('search-container-desktop'),
+                searchInputDesktop: document.getElementById('search-input-desktop'),
+                autocompleteListDesktop: document.getElementById('autocomplete-list-desktop'),
+                leftPanel: document.getElementById('left-panel'),
+                rightPanel: document.getElementById('right-panel')
+            };
+
+            const isActiveSession = (ip) => Object.keys(state.sessions).includes(ip);
+
+            const toggleSearch = () => {
+                const isVisible = !elements.searchContainerDesktop.classList.contains('hidden');
+                if (isVisible) {
+                    elements.searchContainerDesktop.classList.add('hidden');
+                    elements.searchInputDesktop.value = '';
+                    filterDevices('');
+                    hideAutocomplete();
+                } else {
+                    elements.searchContainerDesktop.classList.remove('hidden');
+                    elements.searchInputDesktop.focus();
+                }
+            };
+
+            const filterDevices = (query) => {
+                const deviceElements = document.querySelectorAll('#devices-list > div');
+                deviceElements.forEach((element, index) => {
+                    const device = state.devices[index];
+                    const matches = device.ip.toLowerCase().includes(query.toLowerCase());
+                    element.style.display = matches ? 'flex' : 'none';
+                });
+            };
+
+            const showAutocomplete = (query, isMobile = true) => {
+                const autocompleteList = isMobile ? elements.autocompleteList : elements.autocompleteListDesktop;
+                const searchInput = isMobile ? elements.searchInput : elements.searchInputDesktop;
+
+                if (!query) {
+                    autocompleteList.classList.add('hidden');
+                    return;
+                }
+
+                const matches = state.devices.filter((device) => device.ip.toLowerCase().includes(query.toLowerCase())).slice(0, 5);
+
+                if (matches.length === 0) {
+                    autocompleteList.classList.add('hidden');
+                    return;
+                }
+
+                if (matches.length === 1) {
+                    searchInput.value = matches[0].ip;
+                    filterDevices(matches[0].ip);
+                    autocompleteList.classList.add('hidden');
+                    return;
+                }
+
+                autocompleteList.innerHTML = '';
+                matches.forEach((device, index) => {
+                    const item = document.createElement('div');
+                    item.className = `px-4 py-2 hover:bg-black hover:text-white cursor-pointer font-mono transition-all duration-200 ${index === 0 ? 'bg-gray-100' : ''}`;
+                    item.textContent = device.ip;
+                    item.addEventListener('click', () => {
+                        searchInput.value = device.ip;
+                        filterDevices(device.ip);
+                        autocompleteList.classList.add('hidden');
+                    });
+                    autocompleteList.appendChild(item);
+                });
+
+                autocompleteList.classList.remove('hidden');
+            };
+
+            const hideAutocomplete = () => {
+                elements.autocompleteList.classList.add('hidden');
+                elements.autocompleteListDesktop.classList.add('hidden');
+                state.selectedIndex = -1;
+            };
+
+            const selectAutocompleteItem = (index, autocompleteList) => {
+                const items = autocompleteList.children;
+                Array.from(items).forEach((item, i) => {
+                    item.classList.toggle('bg-gray-100', i === index);
+                    item.classList.toggle('bg-black', false);
+                    item.classList.toggle('text-white', false);
+                });
+                if (items[index]) {
+                    items[index].classList.add('bg-black', 'text-white');
+                    items[index].classList.remove('bg-gray-100');
+                }
+                state.selectedIndex = index;
+            };
+
+            const applySelectedAutocomplete = (searchInput, autocompleteList) => {
+                const items = autocompleteList.children;
+                if (state.selectedIndex >= 0 && items[state.selectedIndex]) {
+                    const selectedIp = items[state.selectedIndex].textContent;
+                    searchInput.value = selectedIp;
+                    filterDevices(selectedIp);
+                    hideAutocomplete();
+                    return true;
+                }
+                return false;
+            };
+
+            const copyToClipboard = async (text) => {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (err) {
+                    try {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        return true;
+                    } catch (fallbackErr) {
+                        return false;
+                    }
+                }
+            };
+
+            const showCopyFeedback = (element, isButton = false) => {
+                const originalText = element.textContent;
+
+                if (isButton) {
+                    element.textContent = 'COPIED!';
+                    element.disabled = true;
+                    setTimeout(() => {
+                        element.textContent = originalText;
+                        element.disabled = false;
+                    }, 1000);
+                } else {
+                    const originalOpacity = element.classList.contains('opacity-80') ? 'opacity-80' : 'opacity-100';
+                    element.textContent = 'COPIED!';
+                    element.classList.remove('opacity-80', 'opacity-100');
+                    element.classList.add('opacity-100');
+                    setTimeout(() => {
+                        element.textContent = originalText;
+                        element.classList.remove('opacity-100');
+                        element.classList.add(originalOpacity);
+                    }, 1000);
+                }
+            };
+
+            const copyMobileLink = async () => {
+                const linkText = elements.currentIp.textContent;
+                if (linkText && linkText !== 'UNKNOWN' && linkText !== 'DETECTING...') {
+                    const success = await copyToClipboard(linkText);
+                    if (success) {
+                        showCopyFeedback(elements.copyBtn, true);
+                    }
+                }
+            };
+
+            const showLoading = (show = true) => {
+                state.loading = show;
+                elements.loading.classList.toggle('hidden', !show);
+                elements.devicesContainer.classList.toggle('hidden', show);
+                elements.refreshBtn.disabled = show;
+                elements.refreshBtnMobile.disabled = show;
+                elements.refreshBtn.textContent = show ? 'SCANNING...' : 'SCAN';
+                elements.refreshBtnMobile.textContent = show ? 'SCANNING...' : 'SCAN';
+            };
+
+            const renderDevices = () => {
+                const devicesList = document.getElementById('devices-list');
+                devicesList.innerHTML = '';
+
+                state.devices.forEach((device, index) => {
+                    const deviceEl = document.createElement('div');
+                    deviceEl.className = 'flex justify-between items-center p-4 border border-black rounded-md';
+
+                    const isActive = isActiveSession(device.ip);
+                    const buttonClass = isActive ? 'px-4 py-2 bg-white text-black border-2 border-black font-mono tracking-wider uppercase cursor-not-allowed opacity-50' : 'px-4 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer';
+
+                    /* HTML */
+                    deviceEl.innerHTML = `
+                    <div>
+                        <span class="font-semibold">TARGET:</span> ${device.ip}
+                    </div>
+                    <button
+                        class="${buttonClass}"
+                        data-action="start"
+                        data-index="${index}"
+                        ${isActive ? 'disabled' : ''}>
+                        ${isActive ? 'ACTIVE' : 'KILL'}
+                    </button>
+                `;
+
+                    devicesList.appendChild(deviceEl);
+                });
+
+                setupEventListeners();
+            };
+
+            const updateDeviceButtons = () => {
+                document.querySelectorAll('[data-action="start"]').forEach((button) => {
+                    const index = button.dataset.index;
+                    const device = state.devices[index];
+                    const isActive = isActiveSession(device.ip);
+
+                    button.disabled = isActive;
+                    button.textContent = isActive ? 'ACTIVE' : 'KILL';
+                    button.className = isActive ? 'px-4 py-2 bg-white text-black border-2 border-black font-mono tracking-wider uppercase cursor-not-allowed opacity-50' : 'px-4 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer';
+                });
+            };
+
+            const setupEventListeners = () => {
+                document.querySelectorAll('[data-action]').forEach((button) => {
+                    button.addEventListener('click', (e) => {
+                        const action = e.target.dataset.action;
+                        const index = e.target.dataset.index;
+                        const ip = e.target.dataset.ip;
+
+                        if (action === 'start') {
+                            startSpoof(index);
+                        } else {
+                            stopSpoof(ip);
+                        }
+                    });
+                });
+            };
+
+            const updateLayoutVisibility = () => {
+                const hasActiveSessions = Object.keys(state.sessions).length > 0;
+
+                if (hasActiveSessions) {
+                    elements.rightPanel.classList.remove('hidden');
+                    elements.leftPanel.classList.remove('w-full');
+                    elements.leftPanel.classList.add('md:w-1/2');
+                } else {
+                    elements.rightPanel.classList.add('hidden');
+                    elements.leftPanel.classList.add('w-full');
+                    elements.leftPanel.classList.remove('md:w-1/2');
+                }
+            };
+
+            const renderSessions = () => {
+                const sessionKeys = Object.keys(state.sessions);
+
+                elements.sessionsList.innerHTML = '';
+
+                if (sessionKeys.length === 0) {
+                    updateLayoutVisibility();
+                    return;
+                }
+
+                sessionKeys.forEach((ip) => {
+                    const session = state.sessions[ip];
+                    const sessionEl = document.createElement('div');
+                    sessionEl.className = 'flex justify-between items-center p-4 border border-black rounded-md';
+
+                    /* HTML */
+                    sessionEl.innerHTML = `
+                    <div>
+                        <span class="font-semibold">TARGET:</span> ${ip} |
+                        <span class="font-semibold">GATEWAY:</span> ${session.gateway}
+                    </div>
+                    <button
+                        class="px-4 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer"
+                        data-stopip="${ip}">
+                        ACTIVE
+                    </button>
+                `;
+
+                    elements.sessionsList.appendChild(sessionEl);
+                });
+
+                document.querySelectorAll('[data-stopip]').forEach((button) => {
+                    button.addEventListener('click', (e) => {
+                        stopSpoof(e.target.dataset.stopip);
+                    });
+                });
+
+                updateLayoutVisibility();
+            };
+
+            const loadData = async () => {
+                try {
+                    showLoading(true);
+
+                    const [devicesRes, gatewayRes, currentRes, sessionsRes] = await Promise.all([fetch('/api/devices'), fetch('/api/gateway'), fetch('/api/current'), fetch('/api/sessions')]);
+
+                    const devices = await devicesRes.json();
+                    const gateway = await gatewayRes.json();
+                    const current = await currentRes.json();
+                    const sessions = await sessionsRes.json();
+
+                    state.devices = devices.devices;
+                    state.gateway = gateway.gateway;
+                    state.current = current;
+                    state.sessions = sessions;
+
+                    elements.gateway.textContent = gateway.gateway;
+                    const currentIpText = current.ip ? `http://${current.ip}` : 'UNKNOWN';
+                    elements.currentIp.textContent = currentIpText;
+                    renderDevices();
+                    renderSessions();
+                    updateDeviceButtons();
+                } catch (error) {
+                    console.error('Load error:', error);
+                    /* HTML */
+                    elements.devicesContainer.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="inline-block px-4 py-2 border-2 border-black bg-white text-black font-mono tracking-wider uppercase glitch">
+                            ERROR: CONNECTION FAILED
+                        </div>
+                        <div class="mt-2 text-sm opacity-60">PLEASE REFRESH TO RETRY</div>
+                    </div>
+                `;
+                } finally {
+                    showLoading(false);
+                }
+            };
+
+            const refreshData = async () => {
+                try {
+                    showLoading(true);
+                    const response = await fetch('/api/devices/refresh', { method: 'POST' });
+                    const data = await response.json();
+
+                    state.devices = data.devices;
+                    state.gateway = data.gateway;
+                    state.current = data.current;
+
+                    elements.gateway.textContent = data.gateway;
+                    const currentIpText = data.current.ip ? `http://${data.current.ip}` : 'UNKNOWN';
+                    elements.currentIp.textContent = currentIpText;
+                    renderDevices();
+
+                    const sessionsResponse = await fetch('/api/sessions');
+                    state.sessions = await sessionsResponse.json();
+                    renderSessions();
+                    updateDeviceButtons();
+                } catch (error) {
+                    console.error('error:', error);
+                } finally {
+                    showLoading(false);
+                }
+            };
+
+            const startSpoof = async (deviceId) => {
+                try {
+                    await fetch(`/api/spoof?target_id=${deviceId}`, {
+                        method: 'POST'
+                    });
+
+                    const sessionsResponse = await fetch('/api/sessions');
+                    state.sessions = await sessionsResponse.json();
+                    renderSessions();
+                    updateDeviceButtons();
+                } catch (err) {
+                    console.error('rrror:', err);
+                }
+            };
+
+            const stopSpoof = async (ip) => {
+                try {
+                    await fetch(`/api/spoof/${ip}`, {
+                        method: 'DELETE'
+                    });
+
+                    const sessionsResponse = await fetch('/api/sessions');
+                    state.sessions = await sessionsResponse.json();
+                    renderSessions();
+                    updateDeviceButtons();
+                } catch (err) {
+                    console.error('rrror:', err);
+                }
+            };
+
+            const setupSearchInput = (input, autocompleteList, isMobile) => {
+                input.addEventListener('input', (e) => {
+                    const query = e.target.value;
+                    filterDevices(query);
+                    showAutocomplete(query, isMobile);
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    const isAutocompleteVisible = !autocompleteList.classList.contains('hidden');
+                    const itemCount = autocompleteList.children.length;
+
+                    if (e.key === 'Escape') {
+                        if (isAutocompleteVisible) {
+                            hideAutocomplete();
+                        } else if (!isMobile) {
+                            toggleSearch();
+                        }
+                    } else if (e.key === 'ArrowDown' && isAutocompleteVisible) {
+                        e.preventDefault();
+                        const newIndex = state.selectedIndex < itemCount - 1 ? state.selectedIndex + 1 : 0;
+                        selectAutocompleteItem(newIndex, autocompleteList);
+                    } else if (e.key === 'ArrowUp' && isAutocompleteVisible) {
+                        e.preventDefault();
+                        const newIndex = state.selectedIndex > 0 ? state.selectedIndex - 1 : itemCount - 1;
+                        selectAutocompleteItem(newIndex, autocompleteList);
+                    } else if (e.key === 'Enter' && isAutocompleteVisible) {
+                        e.preventDefault();
+                        applySelectedAutocomplete(input, autocompleteList);
+                    } else if (e.key === 'Tab' && isAutocompleteVisible) {
+                        e.preventDefault();
+                        applySelectedAutocomplete(input, autocompleteList);
+                    }
+                });
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                elements.refreshBtn.addEventListener('click', refreshData);
+                elements.refreshBtnMobile.addEventListener('click', refreshData);
+                elements.copyBtn.addEventListener('click', copyMobileLink);
+
+                setupSearchInput(elements.searchInput, elements.autocompleteList, true);
+                setupSearchInput(elements.searchInputDesktop, elements.autocompleteListDesktop, false);
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'f') {
+                        e.preventDefault();
+                        toggleSearch();
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!elements.searchContainer.contains(e.target) && !elements.searchContainerDesktop.contains(e.target)) {
+                        hideAutocomplete();
+                    }
+                });
+
+                loadData();
+            });
+        </script>
+    </body>
+</html>
