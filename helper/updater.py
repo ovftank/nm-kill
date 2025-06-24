@@ -2,13 +2,62 @@ import os
 import subprocess
 import tempfile
 import threading
-from tkinter import messagebox
+import tkinter as tk
+from tkinter import messagebox, ttk
 from typing import Any, Dict, Optional
 
 import requests
 from packaging import version
 
 from version import __version__
+
+
+class ProgressDialog:
+    def __init__(self, title="Download Progress"):
+        self.root = tk.Toplevel()
+        self.root.title(title)
+        self.root.geometry("400x150")
+        self.root.resizable(False, False)
+        self.root.transient()
+        self.root.grab_set()
+
+        self.root.update_idletasks()
+        x = (self.root.winfo_screenwidth() // 2) - (400 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (150 // 2)
+        self.root.geometry(f"400x150+{x}+{y}")
+
+        self.root.protocol("WM_DELETE_WINDOW", lambda: None)
+
+        self.setup_widgets()
+
+    def setup_widgets(self):
+        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.status_label = ttk.Label(main_frame, text="Preparing download...")
+        self.status_label.pack(pady=(0, 10))
+
+        self.progress_var = tk.DoubleVar()
+        self.progress_bar = ttk.Progressbar(
+            main_frame,
+            variable=self.progress_var,
+            maximum=100,
+            length=350
+        )
+        self.progress_bar.pack(pady=(0, 10))
+
+        self.percent_label = ttk.Label(main_frame, text="0%")
+        self.percent_label.pack()
+
+    def update_progress(self, progress, status=None):
+        self.progress_var.set(progress)
+        self.percent_label.config(text=f"{progress:.1f}%")
+        if status:
+            self.status_label.config(text=status)
+        self.root.update()
+
+    def close(self):
+        self.root.destroy()
 
 
 class UpdateChecker:
@@ -106,15 +155,29 @@ class UpdateChecker:
 
     def download_and_install(self):
         def download_thread():
+            progress_dialog = None
             try:
                 download_url = self.get_download_url()
                 if not download_url:
                     messagebox.showerror("Error", "File not found!")
                     return
 
-                messagebox.showinfo("Download", "Downloading...")
+                progress_dialog = ProgressDialog("Downloading Update")
+                progress_dialog.update_progress(0, "Starting download...")
 
-                installer_path = self.download_update(download_url)
+                def progress_callback(progress):
+                    if progress_dialog:
+                        progress_dialog.update_progress(
+                            progress, f"Downloading... {progress:.1f}%")
+
+                installer_path = self.download_update(
+                    download_url, progress_callback)
+
+                if progress_dialog:
+                    progress_dialog.update_progress(100, "Download complete!")
+                    progress_dialog.close()
+                    progress_dialog = None
+
                 if not installer_path:
                     messagebox.showerror("Error", "Download failed!")
                     return
@@ -131,6 +194,8 @@ class UpdateChecker:
                         messagebox.showerror("Error", "Install failed!")
 
             except Exception as e:
+                if progress_dialog:
+                    progress_dialog.close()
                 messagebox.showerror("Error", f"Failed: {str(e)}")
 
         thread = threading.Thread(target=download_thread, daemon=True)
