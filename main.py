@@ -201,6 +201,9 @@ app.mount("/", StaticFiles(directory=static_dir, html=True), name="spa")
 if __name__ == "__main__":
     multiprocessing.freeze_support()
 
+    favicon_path = get_resource_path('static/favicon.ico')
+    update_checker.icon_path = favicon_path
+
     server_thread = threading.Thread(target=run_server, daemon=True)
     server_thread.start()
 

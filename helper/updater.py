@@ -13,25 +13,33 @@ from version import __version__
 
 
 class ProgressDialog:
-    def __init__(self, title="Download Progress"):
-        self.root = tk.Toplevel()
-        self.root.title(title)
-        self.root.geometry("400x150")
-        self.root.resizable(False, False)
-        self.root.transient()
-        self.root.grab_set()
+    def __init__(self, title="Download Progress", icon_path=None):
+        self.root = tk.Tk()
+        self.root.withdraw()
 
-        self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (400 // 2)
-        y = (self.root.winfo_screenheight() // 2) - (150 // 2)
-        self.root.geometry(f"400x150+{x}+{y}")
+        self.dialog = tk.Toplevel(self.root)
+        self.dialog.title(title)
+        self.dialog.geometry("400x150")
+        self.dialog.resizable(False, False)
+        self.dialog.transient(self.root)
+        self.dialog.grab_set()
 
-        self.root.protocol("WM_DELETE_WINDOW", lambda: None)
+        if icon_path:
+            try:
+                self.dialog.iconbitmap(icon_path)
+            except Exception:
+                pass
 
+        self.dialog.update_idletasks()
+        x = (self.dialog.winfo_screenwidth() // 2) - (400 // 2)
+        y = (self.dialog.winfo_screenheight() // 2) - (150 // 2)
+        self.dialog.geometry(f"400x150+{x}+{y}")
+
+        self.dialog.protocol("WM_DELETE_WINDOW", lambda: None)
         self.setup_widgets()
 
     def setup_widgets(self):
-        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame = ttk.Frame(self.dialog, padding="20")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
         self.status_label = ttk.Label(main_frame, text="Preparing download...")
@@ -54,9 +62,10 @@ class ProgressDialog:
         self.percent_label.config(text=f"{progress:.1f}%")
         if status:
             self.status_label.config(text=status)
-        self.root.update()
+        self.dialog.update()
 
     def close(self):
+        self.dialog.destroy()
         self.root.destroy()
 
 
@@ -66,6 +75,7 @@ class UpdateChecker:
         self.repo_name = "nm-kill"
         self.current_version = __version__
         self.github_api_url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/releases/latest"
+        self.icon_path: Optional[str] = None
 
     def get_latest_release(self) -> Optional[Dict[str, Any]]:
         try:
@@ -126,7 +136,8 @@ class UpdateChecker:
 
     def install_update(self, installer_path: str) -> bool:
         try:
-            subprocess.Popen([installer_path, "/SILENT"], shell=True)
+            cmd = f'cmd /c "timeout /t 1 /nobreak >nul && start "" "{installer_path}" /SILENT"'
+            subprocess.Popen(cmd, shell=True)
             return True
         except Exception:
             return False
@@ -162,7 +173,8 @@ class UpdateChecker:
                     messagebox.showerror("Error", "File not found!")
                     return
 
-                progress_dialog = ProgressDialog("Downloading Update")
+                progress_dialog = ProgressDialog(
+                    "Downloading Update", self.icon_path)
                 progress_dialog.update_progress(0, "Starting download...")
 
                 def progress_callback(progress):
@@ -182,16 +194,23 @@ class UpdateChecker:
                     messagebox.showerror("Error", "Download failed!")
                     return
 
+                root = tk.Tk()
+                root.withdraw()
+
                 result = messagebox.askyesno(
                     "Install",
                     "Download complete!\nApp will close.\n\nContinue?"
                 )
+
+                root.destroy()
 
                 if result:
                     if self.install_update(installer_path):
                         os._exit(0)
                     else:
                         messagebox.showerror("Error", "Install failed!")
+                else:
+                    messagebox.showinfo("Update", "Update cancelled.")
 
             except Exception as e:
                 if progress_dialog:
