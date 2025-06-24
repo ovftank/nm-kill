@@ -1,130 +1,4 @@
-<<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>NM KILL</title>
-        <link rel="icon" type="image/png" href="/favicon.ico" />
-        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-        <style type="text/tailwindcss">
-            .animation-delay-150 {
-                animation-delay: 150ms;
-            }
-            .animation-delay-300 {
-                animation-delay: 300ms;
-            }
-
-            @keyframes glitch {
-                0%,
-                100% {
-                    transform: translateX(0);
-                }
-                20% {
-                    transform: translateX(-2px);
-                }
-                40% {
-                    transform: translateX(2px);
-                }
-                60% {
-                    transform: translateX(-1px);
-                }
-                80% {
-                    transform: translateX(1px);
-                }
-            }
-
-            .glitch {
-                animation: glitch 0.3s ease-in-out;
-            }
-
-            .autocomplete-scroll::-webkit-scrollbar {
-                width: 4px;
-            }
-            .autocomplete-scroll::-webkit-scrollbar-track {
-                background: white;
-            }
-            .autocomplete-scroll::-webkit-scrollbar-thumb {
-                background: black;
-            }
-
-            .neon-hover {
-                transition: all 0.3s ease;
-            }
-            .neon-hover:hover {
-                color: white;
-                text-shadow: 0 0 2px black, 0 0 4px black, 0 0 6px black, 0 0 8px black, 0 0 10px black;
-            }
-        </style>
-    </head>
-    <body class="bg-white text-black font-mono">
-        <div class="min-h-screen p-4" id="app">
-            <h1 class="text-3xl font-bold text-center mb-6 tracking-wider uppercase">NM KILL</h1>
-
-            <div class="flex flex-col md:flex-row gap-6 h-full">
-                <div id="left-panel" class="w-full">
-                    <div class="border border-black p-4 rounded-lg mb-6">
-                        <h3 class="text-xl font-semibold">GATEWAY: <span id="gateway" class="opacity-80">DETECTING...</span></h3>
-                        <h3 class="text-xl font-semibold hidden md:block">
-                            URL:
-                            <span id="current-ip" class="opacity-80 px-2 py-1 font-mono" title="Click to copy">DETECTING...</span>
-                            <button id="copy-btn" class="ml-2 px-2 py-1 bg-black text-white hover:bg-white hover:text-black border border-black font-mono text-xs tracking-wider uppercase transition-all duration-200 cursor-pointer" title="Copy URL">COPY</button>
-                        </h3>
-                        <div class="mt-2">
-                            <h3 class="text-sm font-semibold">VERSION: <span id="version" class="opacity-80">LOADING...</span><button id="check-update-btn" class="ml-2 px-2 py-1 bg-black text-white hover:bg-white hover:text-black border border-black font-mono text-xs tracking-wider uppercase transition-all duration-200 cursor-pointer" title="Check for Updates">UPDATE</button></h3>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                        <h2 class="text-2xl font-bold tracking-wide uppercase">IP LIST</h2>
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-                            <div class="flex items-center space-x-2 w-full sm:w-auto md:hidden">
-                                <div id="search-container" class="relative flex-1">
-                                    <input id="search-input" type="text" placeholder="SEARCH DEVICE..." class="w-full px-4 py-2 border border-black bg-white text-black font-mono tracking-wider uppercase placeholder-gray-400 focus:outline-none focus:border-2 focus:shadow-sm transition-all duration-200" autocomplete="off" />
-                                    <div id="autocomplete-list" class="absolute top-full left-0 right-0 bg-white border border-black border-t-0 max-h-40 overflow-y-auto hidden z-10 autocomplete-scroll shadow-sm"></div>
-                                </div>
-                                <button id="refresh-btn-mobile" class="px-4 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer whitespace-nowrap">SCAN</button>
-                            </div>
-                            <div id="search-container-desktop" class="hidden md:block relative">
-                                <input id="search-input-desktop" type="text" placeholder="SEARCH IP..." class="px-4 py-2 border border-black bg-white text-black font-mono tracking-wider uppercase placeholder-gray-400 focus:outline-none focus:border-2 focus:shadow-sm transition-all duration-200" autocomplete="off" />
-                                <div id="autocomplete-list-desktop" class="absolute top-full left-0 right-0 bg-white border border-black border-t-0 max-h-40 overflow-y-auto hidden z-10 autocomplete-scroll shadow-sm"></div>
-                            </div>
-                            <button id="refresh-btn" class="hidden md:block px-6 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer">REFRESH</button>
-                        </div>
-                    </div>
-
-                    <div id="loading" class="text-center py-12">
-                        <div class="relative inline-block">
-                            <div class="w-16 h-16 border-4 border-black border-opacity-20 rounded-full"></div>
-                            <div class="absolute top-0 left-0 w-16 h-16 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
-                            <div class="absolute top-2 left-2 w-12 h-12 border-2 border-black border-opacity-30 border-r-transparent rounded-full animate-spin animation-delay-150"></div>
-                            <div class="absolute top-4 left-4 w-8 h-8 border-2 border-black border-b-transparent rounded-full animate-spin animation-delay-300"></div>
-                        </div>
-                        <div class="mt-6 space-y-2">
-                            <div class="flex justify-center space-x-1">
-                                <div class="w-2 h-2 bg-black rounded-full animate-pulse"></div>
-                                <div class="w-2 h-2 bg-black rounded-full animate-pulse animation-delay-150"></div>
-                                <div class="w-2 h-2 bg-black rounded-full animate-pulse animation-delay-300"></div>
-                            </div>
-                            <p class="text-sm font-mono tracking-wider uppercase opacity-80">SCANNING NETWORK...</p>
-                        </div>
-                    </div>
-
-                    <div id="devices-container" class="hidden">
-                        <div id="devices-list" class="space-y-4"></div>
-                    </div>
-                </div>
-
-                <div id="right-panel" class="w-full md:w-1/2 hidden">
-                    <div id="sessions-container">
-                        <h2 class="text-xl font-semibold md:text-2xl md:font-bold tracking-wide uppercase mb-4">BLOCKED TARGETS</h2>
-                        <div id="sessions-list" class="space-y-4"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script>
-            const state = {
+<!doctypehtml><html lang=en><meta charset=UTF-8><meta content="width=device-width,initial-scale=1"name=viewport><title>NM KILL</title><link href=/favicon.ico rel=icon type=image/png><script src=https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4></script><link href=/css/style.css rel=stylesheet><body class="font-mono select-none bg-white text-black"><audio id=bg-music loop><source src=/assets/audio.mp3 type=audio/mpeg></audio><div class=matrix-rain><div class=matrix-column>01001000 01100101 01101100 01101100 01101111 00100000 01010111 01101111 01110010 01101100 01100100</div><div class=matrix-column>11010100 10101010 01010101 11001100 00110011 10011001 01100110 11110000 00001111</div><div class=matrix-column>10110101 01011010 11010101 00101010 11110000 01010101 10101010 11001100 00110011</div><div class=matrix-column>01110010 10001100 11010011 00101110 11100001 01010111 10101000 11001111 00110000</div><div class=matrix-column>11001010 00110101 10101100 01010011 11110101 00101010 11010101 01100110 10011001</div><div class=matrix-column>01010111 10101000 11001111 00110000 10110101 01011010 11010101 00101010 11110000</div><div class=matrix-column>10001100 11010011 00101110 11100001 01010111 10101000 11001111 00110000 10110101</div><div class=matrix-column>00110101 10101100 01010011 11110101 00101010 11010101 01100110 10011001 01010111</div><div class=matrix-column>11001111 00110000 10110101 01011010 11010101 00101010 11110000 01010101 10101010</div><div class=matrix-column>11010011 00101110 11100001 01010111 10101000 11001111 00110000 10110101 01011010</div></div><div class=war-particles><div class=war-particle></div><div class=war-particle></div><div class=war-particle></div><div class=war-particle></div><div class=war-particle></div><div class=war-particle></div><div class=war-particle></div><div class=war-particle></div><div class=war-particle></div><div class=war-particle></div></div><div class="p-4 min-h-screen scan-effect"id=app><h1 class="uppercase tracking-wider neon-text terminal-text font-bold mb-6 relative text-3xl text-center"data-text="NM KILL">NM KILL<div class=explosion-sparks style=top:10px;right:20px></div><div class=explosion-sparks style=bottom:10px;left:30px></div></h1><div class="flex flex-col gap-6 h-full md:flex-row"><div class=w-full id=left-panel><div class="p-4 hud-element rounded-lg data-stream mb-6"><h3 class="terminal-text font-semibold text-xl">GATEWAY: <span class="opacity-80 neon-text"id=gateway>DETECTING...</span></h3><h3 class="hidden md:block font-semibold terminal-text text-xl">URL: <span class="font-mono px-2 py-1 neon-hover opacity-80"id=current-ip title="Click to copy">DETECTING...</span> <button class="uppercase tracking-wider font-mono cursor-pointer cyber-button ml-2 px-2 py-1 text-xs"id=copy-btn title="Copy URL">COPY</button></h3><div class=mt-2><h3 class="terminal-text font-semibold text-sm">VERSION: <span class="opacity-80 neon-text"id=version>LOADING...</span><button class="uppercase tracking-wider font-mono cursor-pointer cyber-button ml-2 px-2 py-1 text-xs"id=check-update-btn title="Check for Updates">UPDATE</button></h3></div></div><div class="flex flex-col items-start sm:flex-row sm:items-center gap-4 justify-between mb-4"><h2 class="uppercase neon-text terminal-text relative font-bold text-2xl tracking-wide"data-text="IP LIST">IP LIST<div class=spark style=top:5px;right:10px></div></h2><div class="flex flex-col items-start sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 sm:w-auto space-y-2 w-full"><div class="flex sm:w-auto w-full items-center md:hidden space-x-2"><div class="flex-1 relative"id=search-container><input autocomplete=off class="uppercase tracking-wider font-mono py-2 px-4 bg-white cyber-border duration-200 focus:outline-none hologram placeholder-gray-400 text-black transition-all w-full"id=search-input placeholder="SEARCH DEVICE..."><div class="hidden absolute autocomplete-scroll bg-white border-t-0 cyber-border hologram left-0 max-h-40 overflow-y-auto right-0 shadow-sm top-full z-10"id=autocomplete-list></div></div><button class="uppercase tracking-wider font-mono cursor-pointer cyber-button py-2 px-4 whitespace-nowrap"id=refresh-btn-mobile>SCAN</button></div><div class="hidden md:block relative"id=search-container-desktop><input autocomplete=off class="uppercase tracking-wider font-mono py-2 px-4 bg-white cyber-border duration-200 focus:outline-none hologram placeholder-gray-400 text-black transition-all"id=search-input-desktop placeholder="SEARCH IP..."><div class="hidden absolute autocomplete-scroll bg-white border-t-0 cyber-border hologram left-0 max-h-40 overflow-y-auto right-0 shadow-sm top-full z-10"id=autocomplete-list-desktop></div></div><button class="uppercase tracking-wider font-mono cursor-pointer cyber-button py-2 hidden md:block px-6"id=refresh-btn>REFRESH</button></div></div><div class="py-12 hologram text-center"id=loading><div class="inline-block relative"><div class="rounded-full border-black border-4 h-16 w-16 border-opacity-20"></div><div class="rounded-full border-black absolute animate-spin border-4 border-t-transparent h-16 left-0 top-0 w-16"></div><div class="rounded-full border-black absolute animate-spin border-2 animation-delay-150 border-opacity-30 border-r-transparent h-12 left-2 top-2 w-12"></div><div class="rounded-full border-black absolute animate-spin border-2 animation-delay-300 border-b-transparent h-8 left-4 top-4 w-8"></div><div class="rounded-full border-black absolute animate-spin animation-delay-450 border border-l-transparent h-4 left-6 top-6 w-4"></div></div><div class="space-y-2 mt-6"><div class="flex justify-center space-x-1"><div class="rounded-full animate-pulse bg-black h-2 w-2"></div><div class="rounded-full animate-pulse bg-black h-2 w-2 animation-delay-150"></div><div class="rounded-full animate-pulse bg-black h-2 w-2 animation-delay-300"></div><div class="rounded-full animate-pulse bg-black h-2 w-2 animation-delay-450"></div><div class="rounded-full animate-pulse bg-black h-2 w-2 animation-delay-600"></div></div><p class="uppercase tracking-wider font-mono neon-text opacity-80 terminal-text text-sm">SCANNING NETWORK...</div></div><div class="hidden pb-4"id=devices-container><div class=space-y-4 id=devices-list></div></div></div><div class="hidden md:w-1/2 w-full"id=right-panel><div class="p-4 hud-element rounded-lg"id=sessions-container><h2 class="uppercase neon-text terminal-text relative tracking-wide font-semibold mb-4 md:font-bold md:text-2xl text-xl"data-text="BLOCKED TARGETS">BLOCKED TARGETS<div class=explosion-sparks style=top:5px;right:15px></div></h2><div class=space-y-4 id=sessions-list></div></div></div></div></div><script>const state = {
                 devices: [],
                 sessions: {},
                 gateway: null,
@@ -205,7 +79,7 @@
                 autocompleteList.innerHTML = '';
                 matches.forEach((device, index) => {
                     const item = document.createElement('div');
-                    item.className = `px-4 py-2 hover:bg-black hover:text-white cursor-pointer font-mono transition-all duration-200 ${index === 0 ? 'bg-gray-100' : ''}`;
+                    item.className = `px-4 py-2 neon-hover cursor-pointer font-mono transition-all duration-200 terminal-text ${index === 0 ? 'bg-gray-100' : ''}`;
                     item.textContent = device.ip;
                     item.addEventListener('click', () => {
                         searchInput.value = device.ip;
@@ -318,15 +192,16 @@
 
                 state.devices.forEach((device, index) => {
                     const deviceEl = document.createElement('div');
-                    deviceEl.className = 'flex justify-between items-center p-4 border border-black rounded-md';
+                    deviceEl.className = 'flex justify-between items-center p-4 hud-element rounded-md data-stream';
 
                     const isActive = isActiveSession(device.ip);
-                    const buttonClass = isActive ? 'px-4 py-2 bg-white text-black border-2 border-black font-mono tracking-wider uppercase cursor-not-allowed opacity-50' : 'px-4 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer';
+                    const buttonClass = isActive ? 'cyber-button opacity-50 cursor-not-allowed' : 'cyber-button glitch-intense';
 
                     /* HTML */
                     deviceEl.innerHTML = `
-                    <div>
-                        <span class="font-semibold">TARGET:</span> ${device.ip}
+                    <div class="terminal-text relative">
+                        <span class="font-semibold neon-text">TARGET:</span> <span class="neon-hover">${device.ip}</span>
+                        <div class="spark" style="top: 2px; right: 50px;"></div>
                     </div>
                     <button
                         class="${buttonClass}"
@@ -351,7 +226,7 @@
 
                     button.disabled = isActive;
                     button.textContent = isActive ? 'ACTIVE' : 'KILL';
-                    button.className = isActive ? 'px-4 py-2 bg-white text-black border-2 border-black font-mono tracking-wider uppercase cursor-not-allowed opacity-50' : 'px-4 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer';
+                    button.className = isActive ? 'cyber-button opacity-50 cursor-not-allowed' : 'cyber-button glitch-intense';
                 });
             };
 
@@ -398,16 +273,17 @@
                 sessionKeys.forEach((ip) => {
                     const session = state.sessions[ip];
                     const sessionEl = document.createElement('div');
-                    sessionEl.className = 'flex justify-between items-center p-4 border border-black rounded-md';
+                    sessionEl.className = 'flex justify-between items-center p-4 hud-element rounded-md scan-effect';
 
                     /* HTML */
                     sessionEl.innerHTML = `
-                    <div>
-                        <span class="font-semibold">TARGET:</span> ${ip} |
-                        <span class="font-semibold">GATEWAY:</span> ${session.gateway}
+                    <div class="terminal-text relative">
+                        <span class="font-semibold neon-text">TARGET:</span> <span class="neon-hover">${ip}</span> |
+                        <span class="font-semibold neon-text">GATEWAY:</span> <span class="neon-hover">${session.gateway}</span>
+                        <div class="explosion-sparks" style="top: 2px; right: 100px;"></div>
                     </div>
                     <button
-                        class="px-4 py-2 bg-black text-white hover:bg-white hover:text-black border-2 border-black font-mono tracking-wider uppercase transition-all duration-200 cursor-pointer"
+                        class="cyber-button"
                         data-stopip="${ip}">
                         ACTIVE
                     </button>
@@ -448,14 +324,13 @@
                     renderSessions();
                     updateDeviceButtons();
                 } catch (error) {
-                    console.error('Load error:', error);
                     /* HTML */
                     elements.devicesContainer.innerHTML = `
-                    <div class="text-center py-8">
-                        <div class="inline-block px-4 py-2 border-2 border-black bg-white text-black font-mono tracking-wider uppercase glitch">
+                    <div class="text-center py-8 hologram">
+                        <div class="inline-block px-4 py-2 cyber-border bg-white text-black font-mono tracking-wider uppercase glitch-intense neon-text">
                             ERROR: CONNECTION FAILED
                         </div>
-                        <div class="mt-2 text-sm opacity-60">PLEASE REFRESH TO RETRY</div>
+                        <div class="mt-2 text-sm opacity-60 terminal-text">PLEASE REFRESH TO RETRY</div>
                     </div>
                 `;
                 } finally {
@@ -482,7 +357,8 @@
                     const data = await response.json();
 
                     if (data.update_available) {
-                        alert(`Update available!\nCurrent: ${data.current_version}\nLatest: ${data.latest_version}\n\nPlease check system tray for update options.`);
+                        const updateMsg = `Update available: ${data.current_version} → ${data.latest_version}\n\nRight-click system tray icon to update.`;
+                        alert(updateMsg)
                     } else {
                         alert('You are using the latest version!');
                     }
@@ -513,8 +389,7 @@
                     state.sessions = await sessionsResponse.json();
                     renderSessions();
                     updateDeviceButtons();
-                } catch (error) {
-                    console.error('error:', error);
+                } catch {
                 } finally {
                     showLoading(false);
                 }
@@ -530,9 +405,7 @@
                     state.sessions = await sessionsResponse.json();
                     renderSessions();
                     updateDeviceButtons();
-                } catch (err) {
-                    console.error('rrror:', err);
-                }
+                } catch {}
             };
 
             const stopSpoof = async (ip) => {
@@ -545,9 +418,7 @@
                     state.sessions = await sessionsResponse.json();
                     renderSessions();
                     updateDeviceButtons();
-                } catch (err) {
-                    console.error('rrror:', err);
-                }
+                } catch {}
             };
 
             const setupSearchInput = (input, autocompleteList, isMobile) => {
@@ -585,7 +456,122 @@
                 });
             };
 
+            let bgMusic = null;
+            let audioContext = null;
+            let lastMoveTime = 0;
+            let bgMusicEnabled = false;
+
+            const initBackgroundMusic = () => {
+                bgMusic = document.getElementById('bg-music');
+                if (bgMusic) {
+                    bgMusic.volume = 0.3;
+                    bgMusic.loop = true;
+                }
+            };
+
+            const playBgMusic = () => {
+                if (bgMusic && bgMusic.paused && bgMusicEnabled) {
+                    bgMusic.play();
+                }
+            };
+
+            const playBeep = (frequency = 800, duration = 50, volume = 0.1) => {
+                if (!audioContext) return;
+
+                try {
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                    oscillator.type = 'square';
+
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(volume, audioContext.currentTime + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration / 1000);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + duration / 1000);
+                } catch {}
+            };
+
+            const initAudioEvents = () => {
+                document.addEventListener('mousemove', () => {
+                    const now = Date.now();
+                    if (now - lastMoveTime > 100) {
+                        playBeep(1200, 15, 0.01);
+                        lastMoveTime = now;
+                    }
+                });
+
+                document.addEventListener('mousedown', () => {
+                    playBeep(600, 80, 0.08);
+                });
+
+                document.addEventListener('mouseup', () => {
+                    playBeep(800, 60, 0.06);
+                });
+
+                document.addEventListener('mouseover', (e) => {
+                    if (e.target.matches('button, .neon-hover, .cyber-button, input')) {
+                        playBeep(1000, 40, 0.04);
+                    }
+                });
+
+                document.addEventListener('wheel', () => {
+                    playBeep(400, 25, 0.03);
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    const freq = 500 + e.keyCode * 1.5;
+                    playBeep(freq, 30, 0.04);
+                });
+
+                document.addEventListener('click', () => {
+                    playBeep(700, 50, 0.05);
+                });
+
+                document.addEventListener('scroll', () => {
+                    playBeep(350, 20, 0.02);
+                });
+            };
+
             document.addEventListener('DOMContentLoaded', () => {
+                initBackgroundMusic();
+                initAudioEvents();
+
+                const enableBgMusicOnInteraction = () => {
+                    if (bgMusicEnabled) return;
+
+                    if (!audioContext) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume().then(() => {
+                            bgMusicEnabled = true;
+                            playBgMusic();
+                        });
+                    } else {
+                        bgMusicEnabled = true;
+                        playBgMusic();
+                    }
+
+                    document.removeEventListener('click', enableBgMusicOnInteraction);
+                    document.removeEventListener('keydown', enableBgMusicOnInteraction);
+                    document.removeEventListener('touchstart', enableBgMusicOnInteraction);
+                };
+
+                document.addEventListener('click', enableBgMusicOnInteraction);
+                document.addEventListener('keydown', enableBgMusicOnInteraction);
+                document.addEventListener('touchstart', enableBgMusicOnInteraction);
+
                 elements.refreshBtn.addEventListener('click', refreshData);
                 elements.checkUpdateBtn.addEventListener('click', checkForUpdates);
                 loadVersion();
@@ -609,8 +595,4 @@
                 });
 
                 loadData();
-            });
-        </script>
-    </body>
-</html>
->
+            });</script>
