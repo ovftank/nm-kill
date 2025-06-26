@@ -21,12 +21,22 @@ def get_default_gateway():
 
 def get_default_iface():
     try:
+        current_ip = get_current_ip()
+        if not current_ip:
+            return None
+
         ifaces = get_windows_if_list()
         if not ifaces:
             return None
 
         for iface in ifaces:
-            if iface['ips'] and iface['ips'] != []:
+            if 'ips' in iface and iface['ips']:
+                for ip in iface['ips']:
+                    if ip == current_ip:
+                        return iface['name']
+
+        for iface in ifaces:
+            if 'ips' in iface and iface['ips']:
                 return iface['name']
     except Exception:
         pass
