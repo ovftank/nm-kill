@@ -15,7 +15,8 @@ def get_network_prefix():
         current_ip = subprocess.check_output(
             "ipconfig | findstr /i \"IPv4\"",
             shell=True,
-            universal_newlines=True
+            universal_newlines=True,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
 
         for line in current_ip.splitlines():
@@ -33,7 +34,8 @@ def ping_ip(ip):
         subprocess.call(
             ["ping", "-n", "1", "-w", "300", ip],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stderr=subprocess.DEVNULL,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
     except Exception:
         pass
@@ -49,14 +51,15 @@ def scan_devices() -> List[Device]:
 
         ips_to_scan = [f"{ip_base}{i}" for i in range(1, 255)]
 
-        with ThreadPoolExecutor(max_workers=30) as executor:
+        with ThreadPoolExecutor(max_workers=25) as executor:
             list(executor.map(ping_ip, ips_to_scan))
 
         time.sleep(0.3)
 
         arp_output = subprocess.check_output(
             ["arp", "-a"],
-            universal_newlines=True
+            universal_newlines=True,
+            creationflags=subprocess.CREATE_NO_WINDOW
         )
         pattern = r"(\d+\.\d+\.\d+\.\d+)\s+([0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2})\s+(\w+)"
 
