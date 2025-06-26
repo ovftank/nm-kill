@@ -6,12 +6,13 @@
 <div align="center">
 
 > **Thằng nào xem phim ếch? Niệm chú!**
-
+>
 > **Đứa nào tải game nặng? Niệm chú!**
-
-> **Con nào xem tích tốc? Niệm chú!**
-
+>
+> **Nhóc nào xem tích tốc? Niệm chú!**
+>
 > **Đường Tăng có Kim Cô, ta có NM KILL!**
+
 </div>
 
 ---
@@ -19,4 +20,29 @@
 <div align="center">
 
 [![Installer](https://img.shields.io/badge/Installer-Download-blue?style=for-the-badge&logo=windows)](https://github.com/ovftank/nm-kill/releases/latest/download/nm-kill-setup.exe)
-[![Portable](https://img.shields.io/badge/Portable-Download-green?style=for-the-badge)](https://github.com/ovftank/nm-kill/releases/latest/download/nm-kill.exe)
+
+</div>
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/ovftank/nm-kill/refs/heads/main/.github/image.png" alt="NM KILL" width="600"/>
+</div>
+
+## HDSD BÍ KÍP VÕ CÔNG
+
+1. mở app
+   - chạy app lên, nó hiện cái icon nhỏ nhỏ ở góc màn hình
+   - chuột phải vào icon đó, chọn "Open Browser" để mở web
+
+2. cắt mạng
+   - nhấn `Ctrl+F` để tìm thiết bị cần cắt
+   - bấm "kill" bên cạnh
+   - nó sẽ mất mạng ngay lập tức =))
+
+3. bỏ chặn
+   - mấy thiết bị bị cắt nằm ở mục "active sessions" bên phải
+   - bấm "active" để ngừng chặn
+
+## lưu ý
+
+- chỉ chặn được thiết bị trong cùng [LAN](https://vnpt.com.vn/tu-van/mang-lan-la-gi-tim-hieu-chi-tiet-ve-mang-cuc-bo-pho-bien-nhat-hien-nay.html)
+- cần quyền admin
