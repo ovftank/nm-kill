@@ -42,6 +42,13 @@
    - mấy thiết bị bị cắt nằm ở mục "active sessions" bên phải
    - bấm "active" để ngừng chặn
 
+## requirements
+
+- nếu bị lỗi, cài thử 2 cái này xem sao:
+
+  - [npcap-1.82.exe](https://npcap.com/dist/npcap-1.82.exe)
+  - [visual c++ redistributable all-in-one](https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/)
+
 ## lưu ý
 
 - chỉ chặn được thiết bị trong cùng [LAN](https://vnpt.com.vn/tu-van/mang-lan-la-gi-tim-hieu-chi-tiet-ve-mang-cuc-bo-pho-bien-nhat-hien-nay.html)

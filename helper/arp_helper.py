@@ -54,7 +54,7 @@ def arp_spoof(target_ip, gateway_ip, stop_event):
         return False
     finally:
         try:
-            restore_arp(target_ip, target_mac, gateway_ip, gateway_mac, iface)
+            restore_arp(target_ip, gateway_ip, target_mac, gateway_mac, iface)
         except Exception:
             pass
     return True

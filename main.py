@@ -1,8 +1,10 @@
 
 import asyncio
+import ctypes
 import multiprocessing
 import os
 import re
+import subprocess
 import sys
 import threading
 import webbrowser
@@ -25,6 +27,60 @@ from version import __version__
 app = FastAPI(title="NM KILL")
 
 active_sessions = {}
+
+
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except Exception:
+        return False
+
+
+def request_admin():
+    if is_admin():
+        return True
+
+    try:
+        ctypes.windll.shell32.ShellExecuteW(
+            None, "runas", sys.executable, " ".join(sys.argv), None, 1
+        )
+        return False
+    except Exception:
+        messagebox.showerror("lỗi cmnr", "chạy với quyền admin đi sếp")
+        return False
+
+
+def kill_port_80_processes():
+    try:
+        result = subprocess.run(
+            ['netstat', '-ano'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        lines = result.stdout.split('\n')
+        pids_to_kill = []
+
+        for line in lines:
+            if ':80 ' in line and 'LISTENING' in line:
+                parts = line.split()
+                if len(parts) >= 5:
+                    pid = parts[-1]
+                    if pid.isdigit():
+                        pids_to_kill.append(pid)
+
+        for pid in pids_to_kill:
+            try:
+                subprocess.run(['taskkill', '/F', '/PID', pid],
+                               capture_output=True, check=False)
+            except Exception:
+                pass
+
+        return len(pids_to_kill) > 0
+
+    except Exception:
+        return False
 
 
 def get_resource_path(relative_path):
@@ -62,8 +118,11 @@ def quit_app(icon, _):
 def run_server():
     try:
         if not check_npcap_exists() and not install_npcap():
-            messagebox.showerror("Error", "Failed to install Npcap")
+            messagebox.showerror(
+                "lỗi", "lỗi khi cài npcap, tắt app mở lại hoặc cài thủ công(đọc hd trên docs)")
             return
+
+        kill_port_80_processes()
 
         uvicorn.run(
             app,
@@ -75,7 +134,7 @@ def run_server():
             log_config=None
         )
     except Exception as e:
-        messagebox.showerror("Error", f"Server failed: {str(e)}")
+        messagebox.showerror("lỗi:", f"{str(e)}")
 
 
 @app.get("/api/gateway")
@@ -190,6 +249,9 @@ app.mount("/", StaticFiles(directory=static_dir, html=True), name="spa")
 
 if __name__ == "__main__":
     multiprocessing.freeze_support()
+
+    if not request_admin():
+        sys.exit(0)
 
     favicon_path = get_resource_path('static/favicon.ico')
     update_checker.icon_path = favicon_path
