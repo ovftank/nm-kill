@@ -1,8 +1,7 @@
-import re
-import subprocess
-import time
-from concurrent.futures import ThreadPoolExecutor
 from typing import List, TypedDict
+
+from scapy.all import conf, srp
+from scapy.layers.l2 import ARP, Ether
 
 
 class Device(TypedDict):
@@ -10,70 +9,25 @@ class Device(TypedDict):
     mac: str
 
 
-def get_network_prefix():
-    try:
-        current_ip = subprocess.check_output(
-            "ipconfig | findstr /i \"IPv4\"",
-            shell=True,
-            universal_newlines=True,
-            creationflags=subprocess.CREATE_NO_WINDOW
-        )
-
-        for line in current_ip.splitlines():
-            if "192.168." in line:
-                ip_parts = re.search(r"(\d+\.\d+\.\d+\.)\d+", line)
-                if ip_parts:
-                    return ip_parts.group(1)
-    except Exception:
-        pass
-    return None
-
-
-def ping_ip(ip):
-    try:
-        subprocess.call(
-            ["ping", "-n", "1", "-w", "300", ip],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            creationflags=subprocess.CREATE_NO_WINDOW
-        )
-    except Exception:
-        pass
-
-
 def scan_devices() -> List[Device]:
     devices: List[Device] = []
 
     try:
-        ip_base = get_network_prefix()
-        if not ip_base:
-            return devices
+        gateway_ip = conf.route.route("0.0.0.0")[2]
+        if gateway_ip and gateway_ip != "0.0.0.0":
+            network_parts = gateway_ip.split('.')
+            network_range = f"{network_parts[0]}.{network_parts[1]}.{network_parts[2]}.0/24"
+        else:
+            network_range = "192.168.1.0/24"
 
-        ips_to_scan = [f"{ip_base}{i}" for i in range(1, 255)]
+        ans, _ = srp(Ether(dst="ff:ff:ff:ff:ff:ff") /
+                     ARP(pdst=network_range), timeout=2, verbose=0, retry=1)
+        for _, received in ans:
+            ip = received[ARP].psrc
+            mac = received[Ether].src
+            devices.append({'ip': ip, 'mac': mac})
 
-        with ThreadPoolExecutor(max_workers=25) as executor:
-            list(executor.map(ping_ip, ips_to_scan))
-
-        time.sleep(0.3)
-
-        arp_output = subprocess.check_output(
-            ["arp", "-a"],
-            universal_newlines=True,
-            creationflags=subprocess.CREATE_NO_WINDOW
-        )
-        pattern = r"(\d+\.\d+\.\d+\.\d+)\s+([0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2}[-:][0-9A-Fa-f]{2})\s+(\w+)"
-
-        for line in arp_output.splitlines():
-            match = re.search(pattern, line)
-            if match:
-                ip = match.group(1)
-                mac = match.group(2).replace('-', ':').upper()
-                type_entry = match.group(3).lower()
-
-                if type_entry == "dynamic":
-                    devices.append({'ip': ip, 'mac': mac})
+        return devices
 
     except Exception:
-        pass
-
-    return devices
+        return []

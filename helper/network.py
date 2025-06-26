@@ -1,85 +1,35 @@
-import subprocess
-
+from scapy.all import conf
+from scapy.arch import get_if_addr
 from scapy.arch.windows import get_windows_if_list
+
+
+def get_proper_interface(gateway_ip):
+    try:
+        network_parts = gateway_ip.split('.')
+        ip_prefix = '.'.join(network_parts[:3]) + '.'
+
+        for iface in get_windows_if_list():
+            for addr in iface.get("ips", []):
+                if addr.startswith(ip_prefix):
+                    iface_name = iface["name"]
+                    return iface_name
+
+        return conf.iface
+
+    except Exception:
+        return conf.iface
 
 
 def get_default_gateway():
     try:
-        output = subprocess.check_output(
-            "ipconfig | findstr /i gateway",
-            shell=True,
-            universal_newlines=True
-        )
-        for line in output.splitlines():
-            parts = line.split(":")
-            if len(parts) > 1 and parts[1].strip():
-                return parts[1].strip()
+        gateway_ip = conf.route.route("0.0.0.0")[2]
+        return gateway_ip if gateway_ip != "0.0.0.0" else None
     except Exception:
-        pass
-    return "192.168.1.1"
-
-
-def get_default_iface():
-    try:
-        current_ip = get_current_ip()
-        if not current_ip:
-            return None
-
-        ifaces = get_windows_if_list()
-        if not ifaces:
-            return None
-
-        for iface in ifaces:
-            if 'ips' in iface and iface['ips']:
-                for ip in iface['ips']:
-                    if ip == current_ip:
-                        return iface['name']
-
-        for iface in ifaces:
-            if 'ips' in iface and iface['ips']:
-                return iface['name']
-    except Exception:
-        pass
-    return None
-
-
-def get_mac_from_ip(ip):
-    try:
-        arp_output = subprocess.check_output(
-            ["arp", "-a", ip],
-            universal_newlines=True
-        )
-        for line in arp_output.splitlines():
-            if ip in line:
-                parts = line.split()
-                if len(parts) >= 2:
-                    return parts[1].replace('-', ':').upper()
-    except Exception:
-        pass
-    return None
-
-
-def get_my_mac():
-    try:
-        output = subprocess.check_output(
-            "ipconfig /all", shell=True, universal_newlines=True)
-        for line in output.splitlines():
-            if "Physical Address" in line:
-                mac = line.split(":")[-1].strip().replace("-", ":")
-                return mac.upper()
-    except Exception:
-        pass
-    return None
+        return "192.168.1.1"
 
 
 def get_current_ip():
     try:
-        output = subprocess.check_output(
-            "ipconfig", shell=True, universal_newlines=True)
-        for line in output.splitlines():
-            if "IPv4 Address" in line and "192.168." in line:
-                ip = line.split(":")[-1].strip()
-                return ip
+        return get_if_addr(conf.iface)
     except Exception:
-        pass
-    return None
+        return None

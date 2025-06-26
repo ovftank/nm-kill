@@ -78,16 +78,6 @@ def run_server():
         messagebox.showerror("Error", f"Server failed: {str(e)}")
 
 
-async def run_subprocess(cmd, shell=False):
-    process = await asyncio.create_subprocess_shell(
-        cmd if shell else ' '.join(cmd),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE
-    )
-    stdout, _ = await process.communicate()
-    return stdout.decode() if stdout else ""
-
-
 @app.get("/api/gateway")
 async def get_gateway():
     loop = asyncio.get_event_loop()
